@@ -36,4 +36,4 @@ cd server && uvicorn main:app --reload
 
 - Frontend: vanilla JS, no transpilation, no modules
 - Backend: Python, type hints not enforced, minimal dependencies
-- Language: UI in French, code/comments in English
+- Language: UI and code/comments in English

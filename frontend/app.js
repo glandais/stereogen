@@ -1,14 +1,14 @@
 const PATTERNS = [
-    { file: "patterns/pattern-dots.png", name: "Points" },
-    { file: "patterns/pattern-checkerboard.png", name: "Damier" },
-    { file: "patterns/pattern-stripes.png", name: "Rayures" },
-    { file: "patterns/pattern-noise.png", name: "Bruit" },
-    { file: "patterns/pattern-circles.png", name: "Cercles" },
+    { file: "patterns/pattern-dots.png", name: "Dots" },
+    { file: "patterns/pattern-checkerboard.png", name: "Checkerboard" },
+    { file: "patterns/pattern-stripes.png", name: "Stripes" },
+    { file: "patterns/pattern-noise.png", name: "Noise" },
+    { file: "patterns/pattern-circles.png", name: "Circles" },
     { file: "patterns/pattern-triangles.png", name: "Triangles" },
-    { file: "patterns/pattern-waves.png", name: "Vagues" },
-    { file: "patterns/pattern-mosaic.png", name: "Mosaïque" },
-    { file: "patterns/pattern-stars.png", name: "Étoiles" },
-    { file: "patterns/pattern-hexagons.png", name: "Hexagones" },
+    { file: "patterns/pattern-waves.png", name: "Waves" },
+    { file: "patterns/pattern-mosaic.png", name: "Mosaic" },
+    { file: "patterns/pattern-stars.png", name: "Stars" },
+    { file: "patterns/pattern-hexagons.png", name: "Hexagons" },
 ];
 
 const API_URL = "/api/depth";
@@ -75,12 +75,12 @@ async function handleFile(file) {
     drawImageToCanvas(canvasOriginal, originalImage);
 
     // Call depth API
-    showLoading("Analyse de la profondeur en cours...");
+    showLoading("Estimating depth...");
     try {
         const formData = new FormData();
         formData.append("file", file);
         const response = await fetch(API_URL, { method: "POST", body: formData });
-        if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
+        if (!response.ok) throw new Error(`Server error: ${response.status}`);
         const blob = await response.blob();
         depthMapImage = await loadImage(URL.createObjectURL(blob));
         drawImageToCanvas(canvasDepth, depthMapImage);
@@ -90,7 +90,7 @@ async function handleFile(file) {
         document.getElementById("step-controls").classList.remove("hidden");
         document.getElementById("step-preview").classList.remove("hidden");
     } catch (err) {
-        alert("Erreur lors de l'estimation de profondeur: " + err.message);
+        alert("Depth estimation error: " + err.message);
     } finally {
         hideLoading();
     }
@@ -141,11 +141,11 @@ function setupControls() {
 
 function generateStereogram() {
     if (!depthMapImage || !patternImage) {
-        alert("Veuillez d'abord charger une image et sélectionner un pattern.");
+        alert("Please upload an image and select a pattern first.");
         return;
     }
 
-    showLoading("Génération de l'autostéréogramme...");
+    showLoading("Generating autostereogram...");
 
     // Use requestAnimationFrame to let the loading screen render
     requestAnimationFrame(() => {
@@ -182,7 +182,7 @@ function generateStereogram() {
                 const ctx = canvasStereogram.getContext("2d");
                 ctx.putImageData(output, 0, 0);
             } catch (err) {
-                alert("Erreur lors de la génération: " + err.message);
+                alert("Generation error: " + err.message);
                 console.error(err);
             } finally {
                 hideLoading();

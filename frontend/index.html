@@ -1,80 +1,80 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stereogen - Générateur d'autostéréogrammes</title>
+    <title>Stereogen - Autostereogram Generator</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
         <h1>Stereogen</h1>
-        <p>Générez des autostéréogrammes à partir de vos photos</p>
+        <p>Generate autostereograms from your photos</p>
     </header>
 
     <main>
         <!-- Step 1: Upload -->
         <section class="step" id="step-upload">
-            <h2>1. Choisir une image</h2>
+            <h2>1. Choose an image</h2>
             <div id="drop-zone" class="drop-zone">
-                <p>Glissez une image ici ou <span class="file-label">parcourez</span></p>
+                <p>Drag an image here or <span class="file-label">browse</span></p>
                 <input type="file" id="file-input" accept="image/*" hidden>
             </div>
         </section>
 
         <!-- Step 2: Pattern -->
         <section class="step hidden" id="step-pattern">
-            <h2>2. Choisir un pattern</h2>
+            <h2>2. Choose a pattern</h2>
             <div id="pattern-grid" class="pattern-grid"></div>
         </section>
 
         <!-- Step 3: Controls -->
         <section class="step hidden" id="step-controls">
-            <h2>3. Réglages</h2>
+            <h2>3. Settings</h2>
             <div class="controls">
                 <div class="control-group">
-                    <label for="amplitude">Amplitude de profondeur</label>
+                    <label for="amplitude">Depth amplitude</label>
                     <input type="range" id="amplitude" min="0.05" max="0.6" step="0.05" value="0.3">
                     <span id="amplitude-value">0.3</span>
                 </div>
                 <div class="control-group">
-                    <label for="pattern-width">Largeur du pattern (px)</label>
+                    <label for="pattern-width">Pattern width (px)</label>
                     <input type="range" id="pattern-width" min="80" max="200" step="10" value="120">
                     <span id="pattern-width-value">120</span>
                 </div>
                 <div class="control-group">
                     <label>
-                        <input type="checkbox" id="invert-depth"> Inverser la profondeur
+                        <input type="checkbox" id="invert-depth"> Invert depth
                     </label>
                 </div>
-                <button id="btn-generate" class="btn-primary">Générer l'autostéréogramme</button>
+                <button id="btn-generate" class="btn-primary">Generate autostereogram</button>
             </div>
         </section>
 
         <!-- Preview -->
         <section class="step hidden" id="step-preview">
-            <h2>4. Résultat</h2>
+            <h2>4. Result</h2>
             <div class="preview-row">
                 <div class="preview-item">
-                    <h3>Image originale</h3>
+                    <h3>Original image</h3>
                     <canvas id="canvas-original"></canvas>
                 </div>
                 <div class="preview-item">
-                    <h3>Carte de profondeur</h3>
+                    <h3>Depth map</h3>
                     <canvas id="canvas-depth"></canvas>
                 </div>
             </div>
             <div class="preview-full">
-                <h3>Autostéréogramme</h3>
+                <h3>Autostereogram</h3>
                 <canvas id="canvas-stereogram"></canvas>
             </div>
-            <button id="btn-download" class="btn-primary">Télécharger</button>
+            <button id="btn-download" class="btn-primary">Download</button>
         </section>
 
         <!-- Loading overlay -->
         <div id="loading" class="loading hidden">
             <div class="spinner"></div>
-            <p id="loading-text">Analyse de la profondeur en cours...</p>
+            <p id="loading-text">Estimating depth...</p>
         </div>
     </main>
 

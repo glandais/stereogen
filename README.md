@@ -1,10 +1,10 @@
 # Stereogen
 
-Générateur d'autostéréogrammes à partir de photos.
+Autostereogram generator from photos.
 
-Upload une image, le serveur estime la carte de profondeur avec [Depth Anything V2](https://huggingface.co/depth-anything/Depth-Anything-V2-Base-hf), puis le navigateur génère l'autostéréogramme en utilisant un pattern au choix.
+Upload an image, the server estimates the depth map with [Depth Anything V2](https://huggingface.co/depth-anything/Depth-Anything-V2-Base-hf), then the browser generates the autostereogram using a chosen pattern.
 
-## Lancement local
+## Local setup
 
 ```bash
 cd server
@@ -12,9 +12,9 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-Ouvrir http://localhost:8000
+Open http://localhost:8000
 
-Le premier lancement télécharge le modèle (~390 MB).
+The first launch downloads the model (~390 MB).
 
 ## Docker
 
@@ -33,23 +33,23 @@ stereogen/
 ├── frontend/
 │   ├── index.html
 │   ├── style.css
-│   ├── app.js               # Algorithme stéréogramme (Thimbleby et al. 1994)
-│   └── patterns/             # 10 patterns PNG tileable
+│   ├── app.js               # Stereogram algorithm (Thimbleby et al. 1994)
+│   └── patterns/            # 10 tileable PNG patterns
 └── Dockerfile
 ```
 
-- **Backend** : FastAPI, Depth Anything V2 Base via Hugging Face `transformers`
-- **Frontend** : Vanilla HTML/JS/Canvas, pas de framework
-- **Algorithme** : Basé sur Thimbleby et al. 1994, traitement du centre vers les bords
+- **Backend**: FastAPI, Depth Anything V2 Base via Hugging Face `transformers`
+- **Frontend**: Vanilla HTML/JS/Canvas, no framework
+- **Algorithm**: Based on Thimbleby et al. 1994, processing from center outward
 
-## Utilisation
+## Usage
 
-1. Uploader une photo
-2. Choisir un pattern
-3. Régler l'amplitude de profondeur et la largeur du pattern
-4. Générer et télécharger l'autostéréogramme
+1. Upload a photo
+2. Choose a pattern
+3. Adjust depth amplitude and pattern width
+4. Generate and download the autostereogram
 
-## Régénérer les patterns
+## Regenerate patterns
 
 ```bash
 cd frontend/patterns
