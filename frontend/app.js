@@ -1,4 +1,5 @@
 const PATTERNS = [
+    { file: null, name: "Random Dots", randomDots: true },
     { file: "patterns/pattern-dots.png", name: "Dots" },
     { file: "patterns/pattern-checkerboard.png", name: "Checkerboard" },
     { file: "patterns/pattern-stripes.png", name: "Stripes" },
@@ -41,6 +42,7 @@ const canvasStereogram = document.getElementById("canvas-stereogram");
 
 function init() {
     setupDropZone();
+    setupSamples();
     setupPatterns();
     setupControls();
 }
@@ -63,6 +65,17 @@ function setupDropZone() {
         e.preventDefault();
         dropZone.classList.remove("dragover");
         if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    });
+}
+
+function setupSamples() {
+    document.querySelectorAll(".sample-thumb").forEach((thumb) => {
+        thumb.addEventListener("click", async () => {
+            const response = await fetch(thumb.src);
+            const blob = await response.blob();
+            const file = new File([blob], "sample.jpg", { type: blob.type });
+            handleFile(file);
+        });
     });
 }
 
@@ -89,6 +102,9 @@ async function handleFile(file) {
         document.getElementById("step-pattern").classList.remove("hidden");
         document.getElementById("step-controls").classList.remove("hidden");
         document.getElementById("step-preview").classList.remove("hidden");
+
+        // Auto-generate with current settings
+        generateStereogram();
     } catch (err) {
         alert("Depth estimation error: " + err.message);
     } finally {
@@ -100,23 +116,39 @@ async function handleFile(file) {
 
 function setupPatterns() {
     PATTERNS.forEach((p, i) => {
-        const img = document.createElement("img");
-        img.src = p.file;
-        img.alt = p.name;
-        img.title = p.name;
-        img.className = "pattern-thumb";
-        if (i === 0) {
-            img.classList.add("selected");
-            selectedPattern = p;
-            loadPatternImage(p.file);
+        let el;
+        if (p.randomDots) {
+            // Generate a random dots thumbnail on a canvas
+            el = document.createElement("canvas");
+            el.width = 80;
+            el.height = 80;
+            const ctx = el.getContext("2d");
+            ctx.fillStyle = "#808080";
+            ctx.fillRect(0, 0, 80, 80);
+            for (let j = 0; j < 400; j++) {
+                ctx.fillStyle = `rgb(${Math.random()*255|0},${Math.random()*255|0},${Math.random()*255|0})`;
+                const x = Math.random() * 80;
+                const y = Math.random() * 80;
+                ctx.fillRect(x, y, 2, 2);
+            }
+        } else {
+            el = document.createElement("img");
+            el.src = p.file;
         }
-        img.addEventListener("click", () => {
-            document.querySelectorAll(".pattern-thumb").forEach((el) => el.classList.remove("selected"));
-            img.classList.add("selected");
+        el.alt = p.name;
+        el.title = p.name;
+        el.className = "pattern-thumb";
+        if (i === 0) {
+            el.classList.add("selected");
             selectedPattern = p;
-            loadPatternImage(p.file);
+        }
+        el.addEventListener("click", () => {
+            document.querySelectorAll(".pattern-thumb").forEach((e) => e.classList.remove("selected"));
+            el.classList.add("selected");
+            selectedPattern = p;
+            if (p.file) loadPatternImage(p.file);
         });
-        patternGrid.appendChild(img);
+        patternGrid.appendChild(el);
     });
 }
 
@@ -140,7 +172,7 @@ function setupControls() {
 // --- Stereogram generation ---
 
 function generateStereogram() {
-    if (!depthMapImage || !patternImage) {
+    if (!depthMapImage || (!patternImage && !selectedPattern.randomDots)) {
         alert("Please upload an image and select a pattern first.");
         return;
     }
@@ -154,6 +186,7 @@ function generateStereogram() {
                 const amplitude = parseFloat(amplitudeSlider.value);
                 const stripWidth = parseInt(patternWidthSlider.value);
                 const invertDepth = invertDepthCheckbox.checked;
+                const useRandomDots = selectedPattern.randomDots;
 
                 // Get depth map data
                 const depthCanvas = document.createElement("canvas");
@@ -165,13 +198,12 @@ function generateStereogram() {
                 depthCtx.drawImage(depthMapImage, 0, 0, width, height);
                 const depthData = depthCtx.getImageData(0, 0, width, height);
 
-                // Get pattern data (tile to stripWidth x height)
-                const patternCanvas = document.createElement("canvas");
-                patternCanvas.width = stripWidth;
-                patternCanvas.height = patternImage.naturalHeight || patternImage.height;
-                const patternCtx = patternCanvas.getContext("2d");
-                patternCtx.drawImage(patternImage, 0, 0, stripWidth, patternCanvas.height);
-                const patternData = patternCtx.getImageData(0, 0, stripWidth, patternCanvas.height);
+                let patternData;
+                if (useRandomDots) {
+                    patternData = generateRandomDotsPattern(stripWidth, height);
+                } else {
+                    patternData = prepareSeamlessPattern(patternImage, stripWidth);
+                }
 
                 // Generate stereogram
                 const output = createStereogram(width, height, depthData, patternData, stripWidth, amplitude, invertDepth);
@@ -189,6 +221,61 @@ function generateStereogram() {
             }
         }, 50);
     });
+}
+
+function generateRandomDotsPattern(w, h) {
+    const data = new ImageData(w, h);
+    const d = data.data;
+    for (let i = 0; i < d.length; i += 4) {
+        if (Math.random() < 0.4) {
+            d[i] = Math.random() * 255 | 0;
+            d[i + 1] = Math.random() * 255 | 0;
+            d[i + 2] = Math.random() * 255 | 0;
+        } else {
+            d[i] = 128;
+            d[i + 1] = 128;
+            d[i + 2] = 128;
+        }
+        d[i + 3] = 255;
+    }
+    return data;
+}
+
+function prepareSeamlessPattern(img, stripWidth) {
+    // Resize pattern to stripWidth and blend edges for seamless tiling
+    const pH = img.naturalHeight || img.height;
+    const canvas = document.createElement("canvas");
+    canvas.width = stripWidth;
+    canvas.height = pH;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, stripWidth, pH);
+    const data = ctx.getImageData(0, 0, stripWidth, pH);
+    const d = data.data;
+
+    // Save a copy of the original pixel data before blending
+    const original = new Uint8ClampedArray(d);
+
+    // Blend the right edge with the left edge for seamless horizontal tiling
+    const blendWidth = Math.min(20, Math.floor(stripWidth / 4));
+    for (let y = 0; y < pH; y++) {
+        for (let bx = 0; bx < blendWidth; bx++) {
+            const t = bx / blendWidth; // 0 at seam, 1 at blend boundary
+            const rightX = stripWidth - blendWidth + bx;
+            const leftX = bx;
+            const ri = (y * stripWidth + rightX) * 4;
+            const li = (y * stripWidth + leftX) * 4;
+            // Right edge blends toward left edge
+            d[ri]     = Math.round(original[ri]     * t + original[li]     * (1 - t));
+            d[ri + 1] = Math.round(original[ri + 1] * t + original[li + 1] * (1 - t));
+            d[ri + 2] = Math.round(original[ri + 2] * t + original[li + 2] * (1 - t));
+            // Left edge blends toward right edge
+            d[li]     = Math.round(original[li]     * t + original[ri]     * (1 - t));
+            d[li + 1] = Math.round(original[li + 1] * t + original[ri + 1] * (1 - t));
+            d[li + 2] = Math.round(original[li + 2] * t + original[ri + 2] * (1 - t));
+        }
+    }
+
+    return data;
 }
 
 function createStereogram(width, height, depthData, patternData, stripWidth, amplitude, invertDepth) {

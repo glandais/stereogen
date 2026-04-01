@@ -4,6 +4,8 @@ Autostereogram generator from photos.
 
 Upload an image, the server estimates the depth map with [Depth Anything V2](https://huggingface.co/depth-anything/Depth-Anything-V2-Base-hf), then the browser generates the autostereogram using a chosen pattern.
 
+![Stereogen screenshot](docs/capture.png)
+
 ## Local setup
 
 ```bash

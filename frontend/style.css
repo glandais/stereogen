@@ -51,6 +51,33 @@ main {
     display: none !important;
 }
 
+/* Samples */
+.samples-label {
+    color: #a0a0b0;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.sample-grid {
+    display: flex;
+    gap: 10px;
+}
+
+.sample-thumb {
+    height: 80px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    object-fit: cover;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.sample-thumb:hover {
+    transform: scale(1.05);
+    border-color: #e94560;
+}
+
 /* Drop zone */
 .drop-zone {
     border: 2px dashed #0f3460;
