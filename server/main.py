@@ -1,9 +1,9 @@
 import io
-import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 import numpy as np
+import torch
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
@@ -17,10 +17,12 @@ depth_estimator = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global depth_estimator
-    print("Loading Depth Anything V2 model...")
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Loading Depth Anything V2 model on {device}...")
     depth_estimator = pipeline(
         "depth-estimation",
         model="depth-anything/Depth-Anything-V2-Base-hf",
+        device=device,
     )
     print("Model loaded.")
     yield

@@ -55,3 +55,9 @@ stereogen/
 cd frontend/patterns
 python generate_patterns.py
 ```
+
+## Credits
+
+- **Stereogram algorithm**: Based on [Thimbleby, Inglis, Witten — "Displaying 3D Images: Algorithms for Single-Image Random-Dot Stereograms" (1994)](https://www.cs.utexas.edu/~fussell/courses/cs354/assignments/raytracing/SIRDS-paper.pdf)
+- **Depth estimation**: [Depth Anything V2](https://github.com/DepthAnything/Depth-Anything-V2) by Yang et al. (NeurIPS 2024)
+- **Seamless tiling and row offset techniques**: Inspired by [DeepStereo](https://github.com/nicholasgasior/DeepStereo)

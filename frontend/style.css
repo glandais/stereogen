@@ -87,6 +87,7 @@ main {
     cursor: pointer;
     border: 3px solid transparent;
     object-fit: cover;
+    display: block;
     transition: border-color 0.2s, transform 0.2s;
 }
 
